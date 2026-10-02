@@ -4,6 +4,9 @@ import { defineConfig, devices } from "@playwright/test";
 // at the network layer (see e2e/fixtures.ts), so they run without the Python backend and never
 // mutate real state — safe for CI and for asserting regressions in the interaction flows.
 const PORT = 5199;
+// Optional browser override for environments that ship their own Chromium and can't run
+// `playwright install` (e.g. Claude Code cloud sessions). Unset → Playwright's bundled browser.
+const chromiumPath = process.env.PW_CHROMIUM_EXECUTABLE;
 
 export default defineConfig({
   testDir: "./e2e",
@@ -15,7 +18,15 @@ export default defineConfig({
     baseURL: `http://localhost:${PORT}`,
     trace: "on-first-retry",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    {
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+        ...(chromiumPath ? { launchOptions: { executablePath: chromiumPath } } : {}),
+      },
+    },
+  ],
   webServer: {
     // Dev server on a dedicated port so it never collides with a running `npm run dev` (5173).
     command: `npm run dev -- --port ${PORT} --strictPort`,
