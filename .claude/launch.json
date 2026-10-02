@@ -9,6 +9,12 @@
     },
     {
       "name": "server",
+      "runtimeExecutable": ".venv/bin/python",
+      "runtimeArgs": ["-m", "coworker.server.run", "--cwd", ".", "--port", "8765"],
+      "port": 8765
+    },
+    {
+      "name": "server-windows",
       "runtimeExecutable": ".venv/Scripts/python.exe",
       "runtimeArgs": ["-m", "coworker.server.run", "--cwd", "."],
       "port": 8765

@@ -30,6 +30,10 @@ def _isolated_state_dir(tmp_path, monkeypatch):
 @pytest_asyncio.fixture
 async def fake_slack(monkeypatch):
     """A running FakeSlack control object; `SLACK_API_URL` is set to it for the test's duration."""
+    # slack_sdk picks up HTTPS_PROXY & co. but ignores NO_PROXY, so behind any proxy its calls
+    # to this loopback server would be sent to the proxy instead (and fail).
+    for var in ("HTTPS_PROXY", "https_proxy", "HTTP_PROXY", "http_proxy"):
+        monkeypatch.delenv(var, raising=False)
     fake = FakeSlack()
     await fake.start()
     monkeypatch.setenv("SLACK_API_URL", fake.api_url)
