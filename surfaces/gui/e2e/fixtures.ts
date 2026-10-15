@@ -385,10 +385,10 @@ const PROVIDERS = [
   { name: "ark-agent-plan-cn", title: "Volcengine Ark Agent Plan", needs_key: true, blurb: "Uses Volcengine Ark Agent Plan's OpenAI-compatible Responses API — the endpoint is prefilled, just add your key.", fields: [{ key: "api_key", label: "Volcengine Ark Agent Plan API key", secret: true, required: true, help: "", placeholder: "" }, { key: "base_url", label: "Endpoint", secret: false, required: false, help: "Volcengine Ark Agent Plan's China (Beijing) endpoint.", placeholder: "https://ark.cn-beijing.volces.com/api/plan/v3", default: "https://ark.cn-beijing.volces.com/api/plan/v3" }], configured: false, values: {}, suggested_models: ["doubao-seed-evolving", "doubao-seed-2.1-turbo"], key_set_at: null, last_used_at: null },
   // ollama: keyless local provider — "configured" without proving anything runs; the
   // onboarding gallery shows "No key needed" and its form is endpoint + Detect (§39).
-  { name: "ollama", title: "Ollama (local models)", needs_key: false, fields: [{ key: "base_url", label: "Endpoint", secret: false, required: false, help: "", placeholder: "http://127.0.0.1:11434", default: "http://127.0.0.1:11434" }], configured: true, values: {}, suggested_models: ["qwen3-coder:30b"], key_set_at: null, last_used_at: null },
+  { name: "ollama", title: "Ollama (local models)", needs_key: false, kind: "local", fields: [{ key: "base_url", label: "Endpoint", secret: false, required: false, help: "", placeholder: "http://127.0.0.1:11434", default: "http://127.0.0.1:11434" }], configured: true, values: {}, suggested_models: ["qwen3-coder:30b"], key_set_at: null, last_used_at: null },
   // openai-codex: the subscription OAuth provider — no key form; the gallery card and
   // form render sign-in state instead (auth: "oauth"). Starts signed out.
-  { name: "openai-codex", title: "ChatGPT subscription", needs_key: false, auth: "oauth", signed_in: false, account: null, authorizing: false, last_error: null, blurb: "Sign in with your ChatGPT plan and run OpenAI models through your subscription — no API key. Tokens stay on this machine.", fields: [], configured: false, values: {}, suggested_models: ["gpt-5.6-sol"], key_set_at: null, last_used_at: null },
+  { name: "openai-codex", title: "ChatGPT subscription", needs_key: false, kind: "subscription", auth: "oauth", signed_in: false, account: null, authorizing: false, last_error: null, blurb: "Sign in with your ChatGPT plan and run OpenAI models through your subscription — no API key. Tokens stay on this machine.", fields: [], configured: false, values: {}, suggested_models: ["gpt-5.6-sol"], key_set_at: null, last_used_at: null },
 ];
 
 /** Install the API + WebSocket mocks on a page. Returns handles for assertions/seed data. */
@@ -934,6 +934,10 @@ export async function mockApi(page: import("@playwright/test").Page) {
           // The decision echoes back so specs can pin what rode the wire (e.g. always_task).
           send("assistant_message", { text: `Done via ${pendingTool} [decision=${msg.decision}]` });
         }
+        send("turn_done");
+      } else if (msg.type === "question_response") {
+        // ask_user answered (card or composer): echo it so specs can see what arrived.
+        send("assistant_message", { text: `Got your answer: ${msg.answer}` });
         send("turn_done");
       } else if (msg.type === "items_response") {
         if (msg.approved) {

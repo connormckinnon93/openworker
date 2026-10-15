@@ -22,6 +22,14 @@ It runs on your machine and doesn't lock you into any model: bring your own API 
 
 Open the app, add a model key (or point it at Ollama), and ask for something real.
 
+OpenRouter comes two ways under **Settings → Models & Keys**: **OpenRouter** (API
+keys) takes a key you paste; **OpenRouter account** (Subscriptions) signs you in
+through the browser and uses your OpenRouter credits — the key OpenRouter issues
+stays on this computer. On a remote backend choose **Use a manual code** and paste
+the code OpenRouter shows. Each card is its own provider with its own models, so
+disconnecting the account never falls back to a pasted key. To revoke the issued
+key on OpenRouter's side, use the **Manage or revoke keys on OpenRouter** link.
+
 ## Use cases
 
 Pick a coworker, point it at real work, get a finished deliverable:
@@ -100,8 +108,8 @@ cd openworker
 bash packaging/setup_dev_env.sh
 
 # 2. Start the local agent server
-.venv/bin/openworker-server --cwd ~/some/project --port 8765
-#    (Windows: .venv\Scripts\openworker-server.exe)
+.venv/bin/python -m coworker.server.run --cwd ~/some/project --port 8765
+#    (Windows: .venv\Scripts\python -m coworker.server.run ...)
 
 # 3. In a second terminal, start the UI
 cd surfaces/gui
